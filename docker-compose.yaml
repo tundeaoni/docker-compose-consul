@@ -1,0 +1,43 @@
+version: '3.4'
+services:
+  database:
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready
+    image: postgres:9-alpine
+    ports:
+    - 8432:5432
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: greeter
+      POSTGRES_PASSWORD: password
+      SERVICE_NAME: database
+    volumes:
+    - ./initdb:/docker-entrypoint-initdb.d
+
+  app:
+    image: greeter-app
+    ports:
+    - 8080:80
+    restart: unless-stopped
+    volumes:
+    - ./app:/usr/src/app
+    depends_on:
+    - registrator
+    - database
+
+  registrator:
+    image: gliderlabs/registrator:latest
+    command: "consul://consul:8500"
+    depends_on:
+    - consul
+    volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+
+  consul:
+    image:  gliderlabs/consul-server:latest
+    command: " -server -bootstrap"
+    ports:
+    - 8500:8500
+
