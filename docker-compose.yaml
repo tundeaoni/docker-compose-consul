@@ -21,8 +21,6 @@ services:
     ports:
     - 8080:80
     restart: unless-stopped
-    volumes:
-    - ./app:/usr/src/app
     depends_on:
     - registrator
     - database
