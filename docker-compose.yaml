@@ -17,7 +17,9 @@ services:
     - ./initdb:/docker-entrypoint-initdb.d
 
   app:
-    image: greeter-app
+    build:
+      context: ./app
+    image: tundeaoni/greeter-app
     ports:
     - 8080:80
     restart: unless-stopped
