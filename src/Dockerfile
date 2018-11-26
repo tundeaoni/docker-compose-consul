@@ -9,13 +9,17 @@ ADD https://releases.hashicorp.com/consul-template/${CONSUL_TEMPLATE_VERSION}/co
 RUN unzip /tmp/consul-template.zip -d /usr/bin && \
     chmod +x /usr/bin/consul-template && \
     rm /tmp/consul-template.zip && \
-    mkdir -p /usr/src/app
+    mkdir -p /usr/src/app && \
+    mkdir /usr/src/config
 
-WORKDIR /usr/src/app
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-COPY supervisor/* /etc/supervisor/conf.d/
-COPY . .
+WORKDIR /usr/src/
+COPY ./config/consul/* ./config/
+
+COPY ./app/requirements.txt ./app/
+RUN pip install --no-cache-dir -r app/requirements.txt
+
+COPY ./config/supervisor/* /etc/supervisor/conf.d/
+COPY ./app/* ./app/
 EXPOSE 80
 
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]
